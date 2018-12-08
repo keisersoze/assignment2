@@ -4,7 +4,7 @@
 
 template <unsigned R, unsigned C> struct Plain;
 template<class decorated> struct Transpose;
-template<class decorated> struct Window;
+template<class decorated, unsigned R, unsigned C> struct Window;
 template<class decorated> struct Diagonal;
 template<class decorated> struct Diagonal_matrix;
 

@@ -23,7 +23,6 @@ std::cout << std::endl;
 
 
 auto B=A.transpose();
-
 /*
 std::cout << B(1,2) << ' ' << *(B.begin()+1) << std::endl;
 for (int i=0; i!=5; ++i) {
@@ -32,6 +31,7 @@ for (int i=0; i!=5; ++i) {
 	std::cout << '\n';
 }
 std::cout << std::endl;
+
 
 auto C=B.window({1,4,1,4});
 std::cout << C(1,2) << ' ' << *(C.col_begin(2)) << ' ' << *++(C.col_begin(2)) << std::endl;

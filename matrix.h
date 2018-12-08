@@ -55,9 +55,10 @@ class matrix_ref<T, Plain<R,C>> {
 	matrix_ref<T, Transpose<Plain<R,C>>> transpose() const {
 		return matrix_ref<T, Transpose<Plain<R,C>>>(*this);
 	}
-	
-	matrix_ref<T, Window<Plain<R,C>>> window(window_spec spec) const {
-		return matrix_ref<T, Window<Plain<R,C>>>(*this, spec);
+
+	template <unsigned R2, unsigned  C2>
+	matrix_ref<T, Window<Plain<R,C>,R2,C2>> window(window_spec spec) const {
+		return matrix_ref<T, Window<Plain<R,C>,R2,C2>>(*this, spec);
 	}
 	
 	matrix_ref<T, Diagonal<Plain<R,C>>> diagonal() const {
@@ -110,9 +111,10 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	const_row_iterator row_begin(unsigned i) const { return base::col_begin(i); }
 	
 	base transpose() const { return *this; }
-	
-	matrix_ref<T, Window<Transpose<decorated>>> window(window_spec spec) const {
-		return matrix_ref<T, Window<Transpose<decorated>>>(*this, spec);
+
+    template <unsigned R2, unsigned  C2>
+	matrix_ref<T, Window<Transpose<decorated>,R2,C2>> window(window_spec spec) const {
+		return matrix_ref<T, Window<Transpose<decorated>,R2,C2>>(*this, spec);
 	}
 	
 	matrix_ref<T, Diagonal<Transpose<decorated>>> diagonal() const {
@@ -132,22 +134,22 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 
 
 
-template<typename T, class decorated> 
-class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
+template<typename T, class decorated, unsigned R, unsigned C>
+class matrix_ref<T, Window<decorated, R, C>> : private matrix_ref<T, decorated> {
 	public:
 	
 	//type members
 	typedef T type;
-	typedef Window<decorated> matrix_type;
+	typedef Window<decorated,R,C> matrix_type;
 	typedef matrix_ref<T, decorated> base;
 	friend class matrix_ref<T, decorated>;
 	
-	typedef index_row_iterator<T,Window<decorated>> iterator;
-	typedef const_index_row_iterator<T,Window<decorated>> const_iterator;
-	typedef index_row_iterator<T,Window<decorated>> row_iterator;
-	typedef const_index_row_iterator<T,Window<decorated>> const_row_iterator;
-	typedef index_col_iterator<T,Window<decorated>> col_iterator;
-	typedef const_index_col_iterator<T,Window<decorated>> const_col_iterator;
+	typedef index_row_iterator<T,Window<decorated,R,C>> iterator;
+	typedef const_index_row_iterator<T,Window<decorated,R,C>> const_iterator;
+	typedef index_row_iterator<T,Window<decorated,R,C>> row_iterator;
+	typedef const_index_row_iterator<T,Window<decorated,R,C>> const_row_iterator;
+	typedef index_col_iterator<T,Window<decorated,R,C>> col_iterator;
+	typedef const_index_col_iterator<T,Window<decorated,R,C>> const_col_iterator;
 	
 	
 	T& operator ()( unsigned row, unsigned column ) 
@@ -172,28 +174,28 @@ class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
 	const_col_iterator col_end(unsigned i) const { return const_col_iterator(*this,0,i+1); }
 	
 	
-	matrix_ref<T, Transpose<Window<decorated>>> transpose() const { 
-		return matrix_ref<T, Transpose<Window<decorated>>>(*this);
+	matrix_ref<T, Transpose<Window<decorated,R,C>>> transpose() const {
+		return matrix_ref<T, Transpose<Window<decorated,R,C>>>(*this);
 	}
 	
-	matrix_ref<T, Window<decorated>> window(window_spec win) const {
-		return matrix_ref<T, Window<decorated>>(*this, {
+	matrix_ref<T, Window<decorated,R,C>> window(window_spec win) const {
+		return matrix_ref<T, Window<decorated,R,C>>(*this, {
 			spec.row_start+win.row_start,
 			spec.row_start+win.row_end,
 			spec.col_start+win.col_start,
 			spec.col_start+win.col_end});
 	}
 	
-	matrix_ref<T, Diagonal<Window<decorated>>> diagonal() const {
-		return matrix_ref<T, Diagonal<Window<decorated>>>(*this);
+	matrix_ref<T, Diagonal<Window<decorated,R,C>>> diagonal() const {
+		return matrix_ref<T, Diagonal<Window<decorated,R,C>>>(*this);
 	}
 	
-	const matrix_ref<T, Diagonal_matrix<Window<decorated>>> diagonal_matrix() const {
-		return matrix_ref<T, Diagonal_matrix<Window<decorated>>>(*this);
+	const matrix_ref<T, Diagonal_matrix<Window<decorated,R,C>>> diagonal_matrix() const {
+		return matrix_ref<T, Diagonal_matrix<Window<decorated,R,C>>>(*this);
 	}
 
-	constexpr unsigned get_height() const { return spec.row_end-spec.row_start; }
-	constexpr unsigned get_width() const { return spec.col_end-spec.col_start; }
+	constexpr unsigned get_height() const { return R; }
+	constexpr unsigned get_width() const { return C; }
 	
 	
 	
@@ -258,9 +260,10 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 	matrix_ref<T, Transpose<Diagonal<decorated>>> transpose() const { 
 		return matrix_ref<T, Transpose<Diagonal<decorated>>>(*this);
 	}
-	
-	matrix_ref<T, Window<Diagonal<decorated>>> window(window_spec win) const {
-		return matrix_ref<T, Window<Diagonal<decorated>>>(*this, win);
+
+	template <unsigned R2,unsigned C2>
+	matrix_ref<T, Window<Diagonal<decorated>,R2,C2>> window(window_spec win) const {
+		return matrix_ref<T, Window<Diagonal<decorated>,R2,C2>>(*this, win);
 	}
 	
 	matrix_ref<T, Diagonal<Diagonal<decorated>>> diagonal() const {
@@ -333,9 +336,10 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	matrix_ref<T, Transpose<Diagonal_matrix<decorated>>> transpose() const { 
 		return matrix_ref<T, Transpose<Diagonal_matrix<decorated>>>(*this);
 	}
-	
-	matrix_ref<T, Window<Diagonal_matrix<decorated>>> window(window_spec win) const {
-		return matrix_ref<T, Window<Diagonal_matrix<decorated>>>(*this, win);
+
+	template<unsigned R2, unsigned C2>
+	matrix_ref<T, Window<Diagonal_matrix<decorated>,R2,C2>> window(window_spec win) const {
+		return matrix_ref<T, Window<Diagonal_matrix<decorated>,R2,C2>>(*this, win);
 	}
 	
 	matrix_ref<T, decorated> diagonal() const { 
