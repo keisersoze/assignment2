@@ -33,23 +33,18 @@ for (int i=0; i!=5; ++i) {
 }
 std::cout << std::endl;
 
-/*
-auto C=B.window({1,4,1,4});
-std::cout << C(1,2) << ' ' << *(C.col_begin(2)) << ' ' << *++(C.col_begin(2)) << std::endl;
-for (int i=0; i!=3; ++i) {
-	for(int j=0; j!=3; ++j)
-		std::cout << C(i,j) << ' ';
-	std::cout << '\n';
-}
-std::cout << std::endl;
+
+auto C=B.window<1,3,2,3>();
+auto D=C.transpose();
+std::cout << C(0,0) <<"\n";
 
 
-for (auto iter=C.col_begin(1); iter != C.col_end(1); ++iter)
+for (auto iter=C.begin(); iter != C.end(); ++iter)
 	std::cout << *iter << ' ';
 std::cout << "\n\n";
 
-*/
 
+/*
 auto D=B.diagonal();
 std::cout << D(1) << '=' << D.get_height() << 'x' << D.get_width() <<  std::endl;
 
@@ -64,7 +59,7 @@ for (auto iter=E.row_begin(1); iter != E.row_end(1); ++iter)
 	std::cout << *iter << ' ';
 std::cout << "\n\n============================\n\n";
 
-/*
+
 matrix<int> BC=B;
 
 B(1,2)=0;

@@ -69,8 +69,8 @@ class matrix_ref<T, Plain<R,C>> {
 		return matrix_ref<T, Diagonal_matrix<Plain<R,C>>>(*this);
 	}
 
-	constexpr unsigned get_height() const { return R; }
-	constexpr unsigned get_width() const { return C; }
+	constexpr unsigned get_height() const { return R+1; }
+	constexpr unsigned get_width() const { return C+1; }
 	
 	
 	protected:
@@ -114,7 +114,9 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 
     template <unsigned R2, unsigned  C2, unsigned R3, unsigned C3>
 	matrix_ref<T, Window<Transpose<decorated>,R2,C2,R3,C3>> window() const {
-		return matrix_ref<T, Window<Transpose<decorated>,R2,C2,R3,C3>>(*this);
+		auto y = R2;
+		auto x = matrix_ref<T, Window<Transpose<decorated>,R2,C2,R3,C3>>(*this);
+		return x;
 	}
 	
 	matrix_ref<T, Diagonal<Transpose<decorated>>> diagonal() const {
@@ -162,7 +164,7 @@ class matrix_ref<T, Window<decorated, R1, C1, R2, C2>> : private matrix_ref<T, d
 	iterator end() { return iterator(*this,get_height(),0); }
 	const_iterator begin() const { return const_iterator(*this,0,0); }
 	const_iterator end() const { return const_iterator(*this,get_height(),0); }
-	
+
 	row_iterator row_begin(unsigned i) { return row_iterator(*this,i,0); }
 	row_iterator row_end(unsigned i) { return row_iterator(*this,i+1,0); }
 	const_row_iterator row_begin(unsigned i) const { return const_row_iterator(*this,i,0); }
@@ -173,13 +175,13 @@ class matrix_ref<T, Window<decorated, R1, C1, R2, C2>> : private matrix_ref<T, d
 	const_col_iterator col_begin(unsigned i) const { return const_col_iterator(*this,0,i); }
 	const_col_iterator col_end(unsigned i) const { return const_col_iterator(*this,0,i+1); }
 	
-	
 	matrix_ref<T, Transpose<Window<decorated, R1, C1, R2, C2>>> transpose() const {
 		return matrix_ref<T, Transpose<Window<decorated, R1, C1, R2, C2>>>(*this);
 	}
-	
-	matrix_ref<T, Window<decorated, R1, C1, R2, C2>> window() const {
-		return matrix_ref<T, Window<decorated, R1, C1, R2, C2>>(*this);
+
+	template<unsigned R3, unsigned C3, unsigned R4, unsigned C4>
+	matrix_ref<T, Window<decorated, R3, C3, R4, C4>> window() const {
+		return matrix_ref<T, Window<decorated, R3, C3, R4, C4>>(*this);
 	}
 	
 	matrix_ref<T, Diagonal<Window<decorated, R1, C1, R2, C2>>> diagonal() const {
@@ -190,8 +192,8 @@ class matrix_ref<T, Window<decorated, R1, C1, R2, C2>> : private matrix_ref<T, d
 		return matrix_ref<T, Diagonal_matrix<Window<decorated, R1, C1, R2, C2>>>(*this);
 	}
 
-	constexpr unsigned get_height() const { return R2-R1; }
-	constexpr unsigned get_width() const { return C2-C1; }
+	constexpr unsigned get_height() const { return R2-R1+1; }
+	constexpr unsigned get_width() const { return C2-C1+1; }
 	
 		
 	private:
@@ -346,7 +348,6 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	}
 
 
-
 	constexpr unsigned get_height() const { return base::get_height(); }
 	constexpr unsigned get_width() const { return base::get_height(); }
 		
@@ -354,10 +355,6 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	matrix_ref(const base&X) : base(X), zero(0) { assert(base::get_width()==1); }
 	const T zero;
 };
-
-
-
-
 
 
 template<typename T, unsigned R, unsigned C>
@@ -387,6 +384,13 @@ class matrix : public matrix_ref<T,Plain<R,C>> {
 			++source;
 		}
 	}
+
+	/*std::ostream& operator<<(std::ostream &strm) {
+		std::string s;
+		for (auto iter=begin(); iter != C.end(); ++iter)
+			std::cout << *iter << ' ';
+		return strm << "A(" << a.i << ")";
+	}*/
 
 	private:
 	using matrix_ref<T,Plain<R,C>>::data;
