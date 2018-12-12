@@ -2,6 +2,16 @@
 
 #include"matrix.h"
 
+template<typename T, unsigned R, unsigned C>
+void pprint(T matrix){
+	for (int i = 0; i < C; ++i) {
+		for (int j = 0; j < R ; ++j) {
+			std::cout << matrix(i,j) << ' ';
+		}
+		std::cout << '\n';
+	}
+	std::cout << '\n';
+}
 
 int main() {
 
@@ -10,41 +20,35 @@ matrix<int,4,5> A;
 
 for (int i=0; i!=4; ++i)
 	for(int j=0; j!=5; ++j)
-	  A(i,j) = i*10+j;
-
-//std::cout << A(1,2) << std::endl;
-
-for (int i=0; i!=4; ++i) {
-	for(int j=0; j!=5; ++j)
-		std::cout << A(i,j) << ' ';
-	std::cout << '\n';
-}
-std::cout << std::endl;
-
+	    A(i,j) = 10+ i*10+j;
 
 auto B=A.transpose();
-
-
-std::cout << B(1,2) << ' ' << *(B.begin()+1) << std::endl;
-for (int i=0; i!=5; ++i) {
-	for(int j=0; j!=4; ++j)
-		std::cout << B(i,j) << ' ';
-	std::cout << '\n';
-}
-std::cout << std::endl;
-
-
 auto C=B.window<1,3,2,3>();
 auto D=C.transpose();
-std::cout << C(0,0) <<"\n";
+
+std::cout << A.get_height()<< ' ' << A.get_width() << '\n';
+std::cout << B.get_height()<< ' ' << B.get_width() << '\n';
+std::cout << C.get_height()<< ' ' << C.get_width() << '\n';
+std::cout << D.get_height()<< ' ' << D.get_width() << '\n';
+
+pprint<decltype(A),A.get_width(),A.get_height()>(A);
+pprint<decltype(B),B.get_width(),B.get_height()>(B);
+pprint<decltype(C),C.get_width(),C.get_height()>(C);
+pprint<decltype(D),D.get_width(),D.get_height()>(D);
+
+/*
+auto E=B.diagonal_matrix();
+std::cout << E.get_height()<< ' ' << E.get_width() << '\n';
+pprint<decltype(E),E.get_width(),E.get_height()>(E);*/
 
 
+/*
 for (auto iter=C.begin(); iter != C.end(); ++iter)
 	std::cout << *iter << ' ';
 std::cout << "\n\n";
 
 
-/*
+
 auto D=B.diagonal();
 std::cout << D(1) << '=' << D.get_height() << 'x' << D.get_width() <<  std::endl;
 

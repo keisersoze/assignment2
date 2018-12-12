@@ -9,8 +9,6 @@
 #include"iterators.h"
 
 
-
-
 template<typename T, unsigned R, unsigned C>
 class matrix_ref<T, Plain<R,C>> {
 	public:
@@ -25,17 +23,16 @@ class matrix_ref<T, Plain<R,C>> {
 	
 	typedef index_col_iterator<T,Plain <R,C>> col_iterator;
 	typedef const_index_col_iterator<T,Plain <R,C>> const_col_iterator;
-	
-	
+
+	//ACCESSORS
 	T& operator ()( unsigned row, unsigned column ) { 
 		return data->operator[](row*C + column);
 	}
 	const T& operator ()( unsigned row, unsigned column ) const { 
 		return data->operator[](row*C + column);
 	}
-	
-	
-	
+
+	//BEGIN & END METHODS
  	iterator begin() { return data->begin(); }
 	iterator end() { return data->end(); }
 	const_iterator begin() const { return data->begin(); }
@@ -51,7 +48,8 @@ class matrix_ref<T, Plain<R,C>> {
 	const_col_iterator col_begin(unsigned i) const { return const_col_iterator(*this,0,i); }
 	const_col_iterator col_end(unsigned i) const { return const_col_iterator(*this,0,i+1); }
 	
-	
+
+	//OPERATIONS
 	matrix_ref<T, Transpose<Plain<R,C>>> transpose() const {
 		return matrix_ref<T, Transpose<Plain<R,C>>>(*this);
 	}
@@ -69,8 +67,8 @@ class matrix_ref<T, Plain<R,C>> {
 		return matrix_ref<T, Diagonal_matrix<Plain<R,C>>>(*this);
 	}
 
-	constexpr unsigned get_height() const { return R+1; }
-	constexpr unsigned get_width() const { return C+1; }
+	constexpr unsigned get_height() const { return R; }
+	constexpr unsigned get_width() const { return C; }
 	
 	
 	protected:
@@ -96,8 +94,8 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	typedef typename base::const_row_iterator const_col_iterator;
 	typedef typename base::col_iterator row_iterator;
 	typedef typename base::const_col_iterator const_row_iterator;
-	
-	
+
+
 	T& operator ()( unsigned row, unsigned column ) 
 	{ return base::operator()(column, row); }
 	const T& operator ()( unsigned row, unsigned column ) const
@@ -152,8 +150,8 @@ class matrix_ref<T, Window<decorated, R1, C1, R2, C2>> : private matrix_ref<T, d
 	typedef const_index_row_iterator<T,Window<decorated, R1, C1, R2, C2>> const_row_iterator;
 	typedef index_col_iterator<T,Window<decorated, R1, C1, R2, C2>> col_iterator;
 	typedef const_index_col_iterator<T,Window<decorated, R1, C1, R2, C2>> const_col_iterator;
-	
-	
+
+
 	T& operator ()( unsigned row, unsigned column ) 
 	{ return base::operator()(row+R1, column+C1); }
 	const T& operator ()( unsigned row, unsigned column ) const
@@ -222,8 +220,8 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 	typedef const_index_row_iterator<T,Diagonal<decorated>> const_row_iterator;
 	typedef index_col_iterator<T,Diagonal<decorated>> col_iterator;
 	typedef const_index_col_iterator<T,Diagonal<decorated>> const_col_iterator;
-	
-	
+
+
 	T& operator ()( unsigned row, unsigned column=0 ) 
 	{
 		assert(column==0);
@@ -297,7 +295,7 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	typedef const_index_row_iterator<T,Diagonal_matrix<decorated>> const_row_iterator;
 	//typedef index_col_iterator<T,Diagonal_matrix<decorated>> col_iterator;
 	typedef const_index_col_iterator<T,Diagonal_matrix<decorated>> const_col_iterator;
-	
+
 	//Diagonal_matrix is always const!
 	/*
 	T& operator ()( unsigned row, unsigned column ) 
@@ -385,16 +383,10 @@ class matrix : public matrix_ref<T,Plain<R,C>> {
 		}
 	}
 
-	/*std::ostream& operator<<(std::ostream &strm) {
-		std::string s;
-		for (auto iter=begin(); iter != C.end(); ++iter)
-			std::cout << *iter << ' ';
-		return strm << "A(" << a.i << ")";
-	}*/
-
 	private:
 	using matrix_ref<T,Plain<R,C>>::data;
 
 };
+
 
 #endif //_MATRIX_H_
