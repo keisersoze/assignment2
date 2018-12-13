@@ -129,8 +129,6 @@ class const_iterator_wrap {
 };
 
 
-	
-	
 
 template<typename T>
 struct matrix_wrap_impl {
@@ -151,6 +149,8 @@ struct matrix_wrap_impl {
 	virtual std::unique_ptr<iterator_impl<T>> end() = 0;
 	virtual std::unique_ptr<const_iterator_impl<T>> begin() const = 0; 
 	virtual std::unique_ptr<const_iterator_impl<T>> end() const = 0;
+	virtual unsigned get_height() const = 0;
+	virtual unsigned get_width() const = 0;
 };
 
 
@@ -219,6 +219,13 @@ class concrete_matrix_wrap_impl : public matrix_wrap_impl<T> {
 				typename matrix_ref<T,matrix_type>::const_iterator> 
 			> (mat.end());
 	}
+
+	unsigned get_height() override{
+		return mat.get_height();
+	};
+	virtual unsigned get_width() override{
+		return mat.get_width();
+	};
 	
 	
 	concrete_matrix_wrap_impl(const matrix_ref<T,matrix_type>& M) : mat(M) {}
@@ -249,8 +256,10 @@ class matrix_wrap {
 	
 	matrix_wrap(const matrix_wrap<T>& X) : pimpl(X.pimpl->clone()) {}
 	matrix_wrap transpose() const { return matrix_wrap(pimpl->transpose()); }
-	
-	
+
+    unsigned get_height() const { return pimpl->get_height(); }
+    unsigned get_width() const { return pimpl->get_width(); }
+
 	template<class matrix_type>
 	matrix_wrap(const matrix_ref<T,matrix_type>& M) : 
 		pimpl(std::make_unique<concrete_matrix_wrap_impl<T,matrix_type>>(M)) {}
