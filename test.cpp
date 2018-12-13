@@ -14,16 +14,6 @@ void pprint(T matrix){
     }
     std::cout << std::endl;
 }
-    /*
-}
-    for (int i = 0; i < C; ++i) {
-        for (int j = 0; j < R ; ++j) {
-            std::cout << matrix(i,j) << ' ';
-        }
-        std::cout << '\n';
-    }
-    std::cout << '\n';
-}*/
 
 int main() {
 
@@ -42,6 +32,7 @@ int main() {
 
     auto D = A + C;
     auto E = A + C.transpose();
+    //auto F = C.transpose() + A; //TODO
 
     pprint(D);
     pprint(E);

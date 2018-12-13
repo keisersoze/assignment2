@@ -220,10 +220,11 @@ class concrete_matrix_wrap_impl : public matrix_wrap_impl<T> {
 			> (mat.end());
 	}
 
-	unsigned get_height() override{
+	unsigned get_height() const override{
 		return mat.get_height();
 	};
-	virtual unsigned get_width() override{
+
+	unsigned get_width() const override{
 		return mat.get_width();
 	};
 	
