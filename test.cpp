@@ -32,7 +32,7 @@ int main() {
 
     auto D = A + C;
     auto E = A + C.transpose();
-    //auto F = C.transpose() + A; //TODO
+    auto F = C.transpose() + A;
 
     pprint(D);
     pprint(E);

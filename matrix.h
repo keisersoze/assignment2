@@ -9,11 +9,59 @@
 #include"iterators.h"
 #include "multiplication_proxy.h"
 
-template<typename T>
-class matrix_wrap;
+//FUNCTIONS
 
-template<typename T>
-class matrix_ref<T, Plain> {
+//overloads for the sum
+template<class T,class U, class dec, class dec2>
+matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_ref<U,dec2>& m2){
+	matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
+	for (int i = 0; i < m.get_height(); ++i) {
+		for (int j = 0; j < m.get_width() ; ++j) {
+			result(i,j)=m(i,j)+m2(i,j);
+		}
+	}
+	return result;
+}
+
+
+template<class T, class U>
+matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m, const matrix_wrap<T>& m2){
+	matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
+	for (int i = 0; i < m.get_height(); ++i) {
+		for (int j = 0; j < m.get_width() ; ++j) {
+			result(i,j)=m(i,j)+m2(i,j);
+		}
+	}
+	return result;
+}
+
+template<class T,class U, class dec>
+matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_wrap<T>& m2){
+	matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
+	for (int i = 0; i < m.get_height(); ++i) {
+		for (int j = 0; j < m.get_width() ; ++j) {
+			result(i,j)=m(i,j)+m2(i,j);
+		}
+	}
+	return result;
+}
+
+template<class T,class U, class dec>
+matrix<decltype(T()+U())> operator+ (const matrix_wrap<T>& m, const matrix_ref<T,dec>& m2){
+	matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
+	for (int i = 0; i < m.get_height(); ++i) {
+		for (int j = 0; j < m.get_width() ; ++j) {
+			result(i,j)=m(i,j)+m2(i,j);
+		}
+	}
+	return result;
+}
+
+//overloads for the product
+
+//CLASSES
+template<typename T> 
+class matrix_ref<T, Plain>{
 	public:
 	
 	//type members
@@ -28,7 +76,7 @@ class matrix_ref<T, Plain> {
 	typedef const_index_col_iterator<T,Plain> const_col_iterator;
 	
 	
-	T& operator ()( unsigned row, unsigned column ) { 
+	T& operator ()( unsigned row, unsigned column ) {
 		return data->operator[](row*width + column);
 	}
 	const T& operator ()( unsigned row, unsigned column ) const { 
@@ -397,62 +445,12 @@ class matrix : public matrix_ref<T,Plain> {
 			++source;
 		}
 	}
-
-	//SUM
-
-	/* //TODO eliminare -> matrix<E> è una sottoclasse di matrix_ref<E, Plain>
-	template<class U>
-	matrix<decltype(T()+U())> operator+ (const matrix<U>& m) const{
-		matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
-		for (int i = 0; i < m.get_height(); ++i) {
-			for (int j = 0; j < m.get_width() ; ++j) {
-				result(i,j)=m(i,j)+matrix_ref<T,Plain>::operator()(i,j);
-			}
-		}
-        return result;
-	}*/
-
-
-    template<class U, class decorated>
-    matrix<decltype(T()+U())> operator+ (const matrix_ref<U,decorated>& m) const{
-        matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
-        for (int i = 0; i < m.get_height(); ++i) {
-            for (int j = 0; j < m.get_width() ; ++j) {
-                result(i,j)=m(i,j)+matrix_ref<T,Plain>::operator()(i,j);
-            }
-        }
-        return result;
-    }
-
-
-    template<class U>
-    matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m) const{
-        matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
-        for (int i = 0; i < m.get_height(); ++i) {
-            for (int j = 0; j < m.get_width() ; ++j) {
-                result(i,j)=m(i,j)+matrix_ref<T,Plain>::operator()(i,j);
-            }
-        }
-        return result;
-    }
-
-
-    //PRODUCT
-
-    template<class U>
-    multiplication_proxy<decltype(T()+U())> operator* (const matrix<U>& m) const{
-    	multiplication_proxy<decltype(T()+U())> result;
-    	result.operator*(m);
-        result.operator*(matrix_wrap <T> (*this));
-        int i = result.get_vector().size();
-        return result;
-    }
+	
 
 	private:
 	using matrix_ref<T,Plain>::height;
 	using matrix_ref<T,Plain>::width; 
-	using matrix_ref<T,Plain>::data;
-	using matrix_ref<T,Plain>::matrix_type;
+	using matrix_ref<T,Plain>::data; 
 
 };
 
