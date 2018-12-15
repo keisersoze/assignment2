@@ -4,6 +4,7 @@
 #include<iostream>
 
 #include "matrix.h"
+#include "multiplication_proxy.h"
 
 template<typename T>
 void pprint(T matrix){
@@ -36,6 +37,7 @@ int main() {
 
     pprint(D);
     pprint(E);
+    pprint(F);
 
     std::cout << std::endl;
     std::cout << std::endl;

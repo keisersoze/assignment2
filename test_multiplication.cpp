@@ -32,6 +32,7 @@ int main() {
 
 
     matrix <int> B = A * C;
+
     pprint(A);
     pprint(C);
     pprint(B);
