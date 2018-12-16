@@ -79,13 +79,13 @@ class iterator_wrap {
 	T& operator *() { return pimpl->dereference(); }
 	
 	bool operator == (const iterator_wrap<T>& X) {
-		return pimpl->is_equal(X.pimp.get());
+		return pimpl->is_equal(X.pimpl.get());
 	}
 	bool operator != (const iterator_wrap<T>& X) {
-		return !pimpl->is_equal(X.pimp.get());
+		return !pimpl->is_equal(X.pimpl.get());
 	}
 	
-	iterator_wrap(const iterator_wrap& X) : pimpl(X.pimple->clone()) {}
+	iterator_wrap(const iterator_wrap& X) : pimpl(X.pimpl->clone()) {}
 	
 	iterator_wrap(std::unique_ptr<iterator_impl<T>> impl) : pimpl(impl) {}
 	

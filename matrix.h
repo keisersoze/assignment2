@@ -8,9 +8,11 @@
 #include"matrix_fwd.h"
 #include"iterators.h"
 
-//CLASSES
+
+
+
 template<typename T> 
-class matrix_ref<T, Plain>{
+class matrix_ref<T, Plain> {
 	public:
 	
 	//type members
@@ -25,7 +27,7 @@ class matrix_ref<T, Plain>{
 	typedef const_index_col_iterator<T,Plain> const_col_iterator;
 	
 	
-	T& operator ()( unsigned row, unsigned column ) {
+	T& operator ()( unsigned row, unsigned column ) { 
 		return data->operator[](row*width + column);
 	}
 	const T& operator ()( unsigned row, unsigned column ) const { 
@@ -88,8 +90,8 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	typedef Transpose<decorated> matrix_type;
 	typedef matrix_ref<T, decorated> base;
 	friend class matrix_ref<T, decorated>;
-	using base::iterator;
-	using base::const_iterator;
+	using typename base::iterator;
+	using typename base::const_iterator;
 	typedef typename base::row_iterator col_iterator;
 	typedef typename base::const_row_iterator const_col_iterator;
 	typedef typename base::col_iterator row_iterator;
