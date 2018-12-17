@@ -5,16 +5,7 @@
 
 #include "matrix.h"
 #include "multiplication_proxy.h"
-
-template<typename T>
-void pprint(T matrix){
-    int i = 0;
-    for (auto iter = matrix.begin(); iter != matrix.end(); ++iter) {
-        std::cout << *iter << " ";
-        if (++i % matrix.get_height() == 0) std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
+#include "printer.h"
 
 int main() {
 

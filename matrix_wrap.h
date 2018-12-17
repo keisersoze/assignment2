@@ -109,13 +109,13 @@ class const_iterator_wrap {
 	T& operator *() { return pimpl->dereference(); }
 	
 	bool operator == (const const_iterator_wrap<T>& X) {
-		return pimpl->is_equal(X.pimp.get());
+		return pimpl->is_equal(X.pimpl.get());
 	}
 	bool operator != (const const_iterator_wrap<T>& X) {
-		return !pimpl->is_equal(X.pimp.get());
+		return !pimpl->is_equal(X.pimpl.get());
 	}
 	
-	const_iterator_wrap(const const_iterator_wrap& X) : pimpl(X.pimple->clone()) {}
+	const_iterator_wrap(const const_iterator_wrap& X) : pimpl(X.pimpl->clone()) {}
 	
 	const_iterator_wrap(std::unique_ptr<const_iterator_impl<T>> impl) : pimpl(impl) {}
 	
@@ -264,6 +264,12 @@ class matrix_wrap {
 	template<class matrix_type>
 	matrix_wrap(const matrix_ref<T,matrix_type>& M) : 
 		pimpl(std::make_unique<concrete_matrix_wrap_impl<T,matrix_type>>(M)) {}
+
+
+    matrix_wrap<T>& operator=(const matrix_wrap<T>& m){
+		this->pimpl = m.pimpl->clone();
+	    return *this;
+	};
 	
 	private:
 	matrix_wrap(std::unique_ptr<matrix_wrap_impl<T>>&& impl) : pimpl(std::move(impl)) {}
