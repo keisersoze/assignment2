@@ -100,9 +100,14 @@ public:
 //OVERLOADS FUNCTIONS
 
 //Sum
+
 template<class T,class U, class dec, class dec2>
 matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_ref<U,dec2>& m2){
-
+    if constexpr (m.is_ct() && m2.is_ct())
+        if constexpr (m.get_ct_height() != m2.get_ct_height() || m.get_ct_width() != m2.get_width())
+            throw "Size mismatch";
+    else if (m.get_width() != m2.get_width() || m.get_height() != m2.get_height())
+        throw "Size mismatch";
     matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
     for (int i = 0; i < m.get_height(); ++i) {
         for (int j = 0; j < m.get_width() ; ++j) {
@@ -115,6 +120,8 @@ matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_re
 
 template<class T, class U>
 matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m, const matrix_wrap<T>& m2){
+    if (m.get_width() != m2.get_width() || m.get_height() != m2.get_height())
+        throw "Size mismatch";
     matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
     for (int i = 0; i < m.get_height(); ++i) {
         for (int j = 0; j < m.get_width() ; ++j) {
@@ -126,6 +133,8 @@ matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m, const matrix_wrap<
 
 template<class T,class U, class dec>
 matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_wrap<U>& m2){
+    if (m.get_width() != m2.get_width() || m.get_height() != m2.get_height())
+        throw "Size mismatch";
     matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
     for (int i = 0; i < m.get_height(); ++i) {
         for (int j = 0; j < m.get_width() ; ++j) {
@@ -137,61 +146,31 @@ matrix<decltype(T()+U())> operator+ (const matrix_ref<T,dec>& m, const matrix_wr
 
 template<class T,class U, class dec>
 matrix<decltype(T()+U())> operator+ (const matrix_wrap<T>& m, const matrix_ref<U,dec>& m2){
-    matrix<decltype(U()+T())> result(m.get_height(),m.get_width());
-    for (int i = 0; i < m.get_height(); ++i) {
-        for (int j = 0; j < m.get_width() ; ++j) {
-            result(i,j)=m(i,j)+m2(i,j);
-        }
-    }
-    return result;
+    return operator+(m2,m);
 }
 
 template<class T,class U, class dec>
 matrix<decltype(T()+U())> operator+ (multiplication_proxy<T>& m, const matrix_ref<U,dec>& m2){
     matrix_wrap<T> multiplication_result = m;
-    matrix<decltype(U()+T())> result(multiplication_result.get_height(),multiplication_result.get_width());
-    for (int i = 0; i < multiplication_result.get_height(); ++i) {
-        for (int j = 0; j < multiplication_result.get_width() ; ++j) {
-            result(i,j)=multiplication_result(i,j)+m2(i,j);
-        }
-    }
-    return result;
+    return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, class dec>
 matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2, multiplication_proxy<T>& m){
     matrix_wrap<T> multiplication_result = m;
-    matrix<decltype(U()+T())> result(multiplication_result.get_height(),multiplication_result.get_width());
-    for (int i = 0; i < multiplication_result.get_height(); ++i) {
-        for (int j = 0; j < multiplication_result.get_width() ; ++j) {
-            result(i,j)=multiplication_result(i,j)+m2(i,j);
-        }
-    }
-    return result;
+    return operator+(m2,multiplication_result);
 }
 
 template<class T,class U>
 matrix<decltype(T()+U())> operator+ (multiplication_proxy<T>& m, const matrix_wrap<U>& m2){
     matrix_wrap<T> multiplication_result = m;
-    matrix<decltype(U()+T())> result(multiplication_result.get_height(),multiplication_result.get_width());
-    for (int i = 0; i < multiplication_result.get_height(); ++i) {
-        for (int j = 0; j < multiplication_result.get_width() ; ++j) {
-            result(i,j)=multiplication_result(i,j)+m2(i,j);
-        }
-    }
-    return result;
+    return operator+(m2,multiplication_result);
 }
 
 template<class T,class U>
 matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2, multiplication_proxy<T>& m){
     matrix_wrap<T> multiplication_result = m;
-    matrix<decltype(U()+T())> result(multiplication_result.get_height(),multiplication_result.get_width());
-    for (int i = 0; i < multiplication_result.get_height(); ++i) {
-        for (int j = 0; j < multiplication_result.get_width() ; ++j) {
-            result(i,j)=multiplication_result(i,j)+m2(i,j);
-        }
-    }
-    return result;
+    return operator+(m2,multiplication_result);
 }
 
 //Product
