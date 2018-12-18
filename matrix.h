@@ -84,6 +84,11 @@ class matrix_ref<T, Plain>{
 	
 	unsigned get_height() const { return height; }
 	unsigned get_width() const { return width; }
+
+	//methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return false;}
+    constexpr unsigned get_ct_height() const{ return 0;}
+    constexpr unsigned get_ct_width() const{ return 0;}
 	
 	
 	protected:
@@ -167,7 +172,11 @@ class matrix_ref<T, CT_dims<H,W>> {
 	
 	unsigned get_height() const { return height; }
 	unsigned get_width() const { return width; }
-	
+
+    //methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return true;}
+    constexpr unsigned get_ct_height() const{ return H;}
+    constexpr unsigned get_ct_width() const{ return W;}
 	
 	protected:
 	matrix_ref(){}
@@ -239,6 +248,11 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	
 	unsigned get_height() const { return base::get_width(); }
 	unsigned get_width() const { return base::get_height(); }
+
+    //methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return base::is_ct();}
+    constexpr unsigned get_ct_height() const{ return base::get_ct_width();}
+    constexpr unsigned get_ct_width() const{ return base::get_ct_height();}
 		
 	private:
 	matrix_ref(const base&X) : base(X) {}
@@ -322,8 +336,11 @@ class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
 	
 	unsigned get_height() const { return spec.row_end-spec.row_start; }
 	unsigned get_width() const { return spec.col_end-spec.col_start; }
-	
-	
+
+    //methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return false;}
+    constexpr unsigned get_ct_height() const{ return 0;}
+    constexpr unsigned get_ct_width() const{ return 0;}
 	
 		
 	private:
@@ -416,6 +433,18 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 		return std::min(base::get_height(), base::get_width()); 
 		}
 	unsigned get_width() const { return 1; }
+
+    //methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return base::is_ct();}
+    constexpr unsigned get_ct_height() const{
+        return base::get_ct_height();
+	}
+    constexpr unsigned get_ct_width() const{
+	    if constexpr (is_ct())
+	        return 1;
+	    else
+	        return 0;
+	}
 		
 	private:
 	matrix_ref(const base&X) : base(X) {}
@@ -511,7 +540,12 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	
 	unsigned get_height() const { return base::get_height(); }
 	unsigned get_width() const { return base::get_height(); }
-		
+
+    //methods to access dimension of the matrix at compile time
+    constexpr bool is_ct() const{ return base::is_ct();}
+    constexpr unsigned get_ct_height() const{ return base::get_ct_height(); }
+    constexpr unsigned get_ct_width() const{ return base::get_ct_height(); }
+
 	private:
 	matrix_ref(const base&X) : base(X), zero(0) { assert(base::get_width()==1); }
 	const T zero;
@@ -539,7 +573,7 @@ class matrix<T> : public matrix_ref<T,Plain> {
 		data = std::make_shared<std::vector<T>>(width*height);
 		*data = *(X.data);
 	}
-	
+
 	template<class matrix_type>
 	matrix(const matrix_ref<T,matrix_type>&X) {
 		height = X.get_height();
@@ -556,7 +590,7 @@ class matrix<T> : public matrix_ref<T,Plain> {
 			++source;
 		}
 	}
-	
+
 
 	private:
 	using matrix_ref<T,Plain>::height;
@@ -565,29 +599,28 @@ class matrix<T> : public matrix_ref<T,Plain> {
 
 };
 
-template<typename T, unsigned H, unsigned W> 
+template<typename T, unsigned H, unsigned W>
 class matrix<T,H,W> : public matrix_ref<T,CT_dims<H,W>> {
 	public:
 
 	static_assert( H > 0 && W > 0, "matrix cannot have 0 or negative dimension" );
-	
+
 	matrix( void ) {
 		this->height = H;
 		this->width = W;
 		data = std::make_shared<std::vector<T>>(width*height);
 	}
-	
+
 	matrix(const matrix<T,H,W>&X) {
 		height = X.height;
 		width = X.width;
 		data = std::make_shared<std::vector<T>>(width*height);
 		*data = *(X.data);
 	}
-	
-	template<class matrix_type>
-	matrix(const matrix_ref<T,matrix_type>&X) {
-		static_assert( (matrix_ref<T,matrix_type>::h == 0 || matrix_ref<T,matrix_type>::h == H) &&
-					   (matrix_ref<T,matrix_type>::w == 0 || matrix_ref<T,matrix_type>::h == H), 
+
+	matrix(const matrix_ref<T,CT_dims<H,W>>&X) {
+		static_assert( (matrix_ref<T,CT_dims<H,W>>::h == 0 || matrix_ref<T,CT_dims<H,W>>::h == H) &&
+					   (matrix_ref<T,CT_dims<H,W>>::w == 0 || matrix_ref<T,CT_dims<H,W>>::h == H),
 					   "matrix size mismatch in static sized matrix constructor" );
 
 		height = X.get_height();
@@ -605,14 +638,14 @@ class matrix<T,H,W> : public matrix_ref<T,CT_dims<H,W>> {
 			++source;
 		}
 	}
-	
-	using matrix_ref<T,CT_dims<H,W>>::h;
+
+	using matrix_ref<T,CT_dims<H,W>>::h; //TODO delete
 	using matrix_ref<T,CT_dims<H,W>>::w;
 
 	private:
 	using matrix_ref<T,CT_dims<H,W>>::height;
-	using matrix_ref<T,CT_dims<H,W>>::width; 
-	using matrix_ref<T,CT_dims<H,W>>::data; 
+	using matrix_ref<T,CT_dims<H,W>>::width;
+	using matrix_ref<T,CT_dims<H,W>>::data;
 
 };
 

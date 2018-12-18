@@ -9,6 +9,10 @@
 
 int main() {
 
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+    std::cout << "|         SUM DEMO          |" << std::endl;
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+
     matrix<int> A(5,5);
     for (int i=0; i!=5; ++i)
         for(int j=0; j!=5; ++j)
@@ -30,12 +34,20 @@ int main() {
     pprint(E);
     pprint(F);
 
-    std::cout << std::endl;
-    std::cout << std::endl;
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+    std::cout << "|  COMPILE-TIME SUM DEMO    |" << std::endl;
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
 
-    /*
-    matrix_wrap<int> B=A.transpose();
-    auto F = A + B;
-    pprint(F);*/
+    matrix<int,5,5> Z;
+
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < 5; ++j) {
+            Z(i,j) = 2;
+        }
+    }
+
+    auto Q = Z.transpose()+Z.transpose();
+    pprint (Q);
+    std::cout<< Q.get_ct_height() << Q.get_ct_width();
 
 }
