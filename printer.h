@@ -20,7 +20,7 @@ void pprint(const T& matrix){
 }
 
 template<typename T>
-void pprint_wrap(matrix_wrap<T> matrix, unsigned w , unsigned h){
+void pprint_wrap(const matrix_wrap<T>& matrix, unsigned w , unsigned h){
     for (int i=0; i!=w; ++i) {
         for(int j=0; j!=h; ++j)
             std::cout << matrix(i,j) << ' ';

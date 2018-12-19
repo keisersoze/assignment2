@@ -80,8 +80,14 @@ class matrix_ref<T, Plain>{
 
 	//methods to access dimension of the matrix at compile time
     static constexpr bool is_ct() { return false;}
-    static constexpr unsigned get_ct_height() { return 0;}
-    static constexpr unsigned get_ct_width() { return 0;}
+    static constexpr unsigned get_ct_height() {
+	    static_assert(is_ct());
+	    return 0;
+	}
+    static constexpr unsigned get_ct_width() {
+	    static_assert(is_ct());
+	    return 0;
+	}
 	
 	protected:
 	matrix_ref(){}
@@ -320,8 +326,14 @@ class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
     //methods to access dimension of the matrix at compile time
     //no static window allowed, decorated matrix size known only at runtime
     static constexpr bool is_ct() { return false;}
-    static constexpr unsigned get_ct_height() { return 0;}
-    static constexpr unsigned get_ct_width() { return 0;}
+    static constexpr unsigned get_ct_height() {
+	    static_assert(is_ct());
+        return 0;
+	}
+    static constexpr unsigned get_ct_width() {
+        static_assert(is_ct());
+	    return 0;
+	}
 	
 		
 	private:
