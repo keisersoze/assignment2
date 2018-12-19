@@ -61,7 +61,21 @@ In this section we explain our design for the project.
  
 ### Static matrices
 
-We have defined a new generic template for the `matrix` class so as to be able to create a static specialization by allowing to the client to specify the dimensions of the matrix directly in the template, and added a new policy `CT_matrix<H,W>` to provide a variant to the `Plain` base `matrix_ref<T,type>` templated class where we can store static information at compile-time on the given matrix size. Such information is carried through the static decoration chain by copying over the value in the two `static constexpr unsigned h, w` variables. Since no static variant to `window_spec` is provided, the static information on the dimensions is lost when the method `window(window_spec w)` is invoked and the values of `h` and `w` are set to zero. Using this information, we can check at compile-time wether the new static getters shall perform a bound check or delegate the access to the `operator()`.
+We have defined a new generic template for the `matrix` class so as to be able to create a static specialization by allowing to the client to specify the dimensions of the matrix directly in the template, and added a new policy `CT_matrix<H,W>` to provide a variant to the `Plain` base `matrix_ref<T,type>` templated class where we can store static information at compile-time on the given matrix size. Such information is carried through the static decoration chain by the methods:
+
+``` c++
+static constexpr bool is_ct(); //return true if the matrix has compile time dimensions
+```
+
+``` c++
+static constexpr unsigned get_ct_height(): //only available if is_ct()=true
+```
+
+``` c++
+static constexpr unsigned get_ct_width(): //only available if is_ct()=true
+```
+
+Since no static variant to `window_spec` is provided, the static information on the dimensions is lost when the method `window(window_spec w)` is invoked and the values of `h` and `w` are set to zero. Using this information, we can check at compile-time wether the new static getters shall perform a bound check or delegate the access to the `operator()`.
 
 The `matrix_wrap<E>` required no changes since the type knowledge on the wrapped matrix is restricted to the templated class `matrix_ref<E,type>` and so the wrapper is oblivious to the new features.
 
@@ -73,3 +87,7 @@ All operators have been defined externally from the classes. We have provided an
 The `operator*` allows the client to multiply two matrices having the same type. A sequence of multiplication produces a `multiplication_proxy<E>` object which stores all the matrices converting them into a `matrix_wrap<E>` and the quasi-optimal multiplication order is decided at runtime using the largest-dimension compression heuristic. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
 
 The sum can be performed using the `operator+` between any two matrices of type `T` and `U`, as long as the `operator+` is defined between two expressions having those two types, and returns a new matrix having as element type the type that one would get by summing two expressions of type `T` and `U`.
+
+### Multiplication proxy
+
+The role of the `multiplication_proxy` is to store the sequence of matrices in a chain of multiplications and suspend the evaluation of the expression until no more matrices are available. Its responsibility is to enforce the sub-optimal largest dimension compression heuristic, and this process happens at runtime. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
