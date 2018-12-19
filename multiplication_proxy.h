@@ -59,6 +59,8 @@ protected:
         return opt_idx;
     }
 public:
+    multiplication_proxy<T>()= default;
+    multiplication_proxy<T>(multiplication_proxy<T> &&m):vector(std::move(m.vector)){}
 
     template < class dec>
     void add (const matrix_ref<T,dec>& m){
@@ -112,32 +114,48 @@ class multiplication_proxy <T, W> : public multiplication_proxy<T>{
 private:
     using multiplication_proxy<T>::vector;
 public:
-    
+    multiplication_proxy<T,W>()= default;
+    multiplication_proxy<T,W>(multiplication_proxy<T> &&m):multiplication_proxy<T>(std::move(m)){}
+
     template<class dec>
     auto operator*(const matrix_ref<T, dec> &m) {
-        if (!vector.empty()) {
-            if constexpr (m.is_ct()) {
-                if constexpr (W != m.get_ct_height())
-                    throw "Size mismatch";
-            } else if (vector.back().get_width() != m.get_height())
+        if constexpr (m.is_ct()) {
+            if constexpr(m.get_ct_height() != W)
                 throw "Size mismatch";
+            multiplication_proxy<T, m.get_ct_width()> result(std::move(*this));
+            result.add(m);
+            return result;
+        }else{
+            if (vector.back().get_width() != m.get_height())
+                throw "Size mismatch";
+            vector.push_back(m);
+            return *this;
         }
-        vector.push_back(matrix_wrap<int>(m)); // emplace back
-        return *this;
     }
 };
 
 //OVERLOADS FOR THE MULTIPLICATION
 
 template<class T, class dec, class dec2>
-multiplication_proxy<T> operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){
-    if (m.get_width()!=m2.get_height())
-        throw "Size mismatch";
+auto operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){
+    if constexpr (m.is_ct() && m2.is_ct())
+        if constexpr(m.get_ct_width()!=m2.get_ct_height())
+            throw "Size mismatch";
+        else{
+            multiplication_proxy<T,m2.get_ct_width()> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }
     else{
-        multiplication_proxy<T> result;
-        result.add(m);
-        result.add(m2);
-        return result;
+        if (m.get_width()!=m2.get_height())
+            throw "Size mismatch";
+        else{
+            multiplication_proxy<T> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }
     }
 }
 
