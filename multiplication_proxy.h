@@ -18,7 +18,7 @@
  */
 
 template< class R, class U>
-matrix_wrap<decltype(R()*U())> do_multiplication(const matrix_wrap<R>& m1,const matrix_wrap<U>& m2){
+matrix<decltype(R()*U())> do_multiplication(const matrix_wrap<R>& m1,const matrix_wrap<U>& m2){
     matrix<decltype(R()*U())> result(m1.get_height(),m2.get_width());
     if (m1.get_width() != m2.get_height())
         throw "!!!";
@@ -32,16 +32,17 @@ matrix_wrap<decltype(R()*U())> do_multiplication(const matrix_wrap<R>& m1,const 
             buff=0;
         }
     }
-    return matrix_wrap<decltype(R()*U())>(result);
+    return result;
 }
 
+template<typename T, unsigned...dims> class multiplication_proxy;
+
 template <typename T>
-class multiplication_proxy {
-private:
+class multiplication_proxy <T> {
+protected:
+    std::vector<matrix_wrap<T>> vector;
 
-    std::vector<matrix_wrap<int>> vector;
-
-    /* find the current optimal multiplication
+    /* Find the current optimal multiplication (greedy largest-dimension compression heuristic), no side effects
      * Pre: the size of the vector must be >= 2
      * Time complexity: O(n), with n equal to the size of the vector
      */
@@ -60,41 +61,69 @@ private:
 public:
 
     template<class dec>
-    multiplication_proxy &operator*(const matrix_ref<T, dec> &m) {
+    multiplication_proxy<T> &operator*(const matrix_ref<T, dec> &m) {
         if (!vector.empty()) {
             if (vector.back().get_width() != m.get_height())
+                throw "Size mismatch";
+        }
+        vector.push_back(matrix_wrap<int>(m));
+        return *this;
+    }
+
+    multiplication_proxy<T> &operator*(const matrix_wrap<T> &m) {
+        if (!vector.empty()) {
+            if (vector.back().get_width() != m.get_height())
+                throw "Size mismatch";
+        }
+        vector.push_back(m);
+        return *this;
+    }
+
+    operator matrix<T>(){
+        //BEGIN DEBUG
+        for (auto i=vector.begin(); i<vector.end(); ++i)
+            pprint_wrap(*i,(*i).get_height(),(*i).get_width());
+        std::cout<< "----------------\n";
+        //END DEBUG
+
+        while(vector.size() > 2) {
+            unsigned opt = find_optimal_multiplication();
+            matrix<T> result = do_multiplication(vector[opt], vector[opt + 1]);
+            vector.erase(vector.begin() + opt);
+            vector[opt]= result;
+
+            //BEGIN DEBUG
+            for (auto i=vector.begin(); i<vector.end(); ++i)
+                pprint_wrap(*i,(*i).get_height(),(*i).get_width());
+            std::cout<< "----------------\n";
+            //END DEBUG
+        }
+        return do_multiplication(vector[0],vector[1]);
+    }
+};
+
+template <typename T, unsigned W>
+class multiplication_proxy <T, W> : public multiplication_proxy<T>{
+private:
+    using multiplication_proxy<T>::vector;
+public:
+
+    template<class dec>
+    multiplication_proxy(const matrix_ref<T, dec> &m): multiplication_proxy<T>(){
+        vector.push_back(m);
+    }
+
+    template<class dec>
+    multiplication_proxy<T> &operator*(const matrix_ref<T, dec> &m) {
+        if (!vector.empty()) {
+            if constexpr (m.is_ct()) {
+                if constexpr (W != m.get_ct_height())
+                    throw "Size mismatch";
+            } else if (vector.back().get_width() != m.get_height())
                 throw "Size mismatch";
         }
         vector.push_back(matrix_wrap<int>(m)); // emplace back
         return *this;
-    }
-
-    multiplication_proxy &operator*(const matrix_wrap<T> &m) {
-        if (!vector.empty()) {
-            if (vector.back().get_width() != m.get_height())
-                throw "Size mismatch";
-        }
-        vector.push_back(m); // deep copy of matrix_wrap
-        return *this;
-    }
-
-    operator matrix_wrap<T>(){
-        for (auto i=vector.begin(); i<vector.end(); ++i)
-            pprint_wrap(*i,(*i).get_height(),(*i).get_width());
-        std::cout<< "----------------\n";
-
-        while(vector.size() > 2) {
-            unsigned opt = find_optimal_multiplication();
-            auto result = do_multiplication(vector[opt], vector[opt + 1]);
-            vector.erase(vector.begin() + opt);
-            vector[opt]= result;
-
-            for (auto i=vector.begin(); i<vector.end(); ++i)
-                pprint_wrap(*i,(*i).get_height(),(*i).get_width());
-            std::cout<< "----------------\n";
-
-        }
-        return do_multiplication(vector[0],vector[1]);
     }
 };
 
@@ -102,10 +131,16 @@ public:
 
 template<class T, class dec, class dec2>
 multiplication_proxy<T> operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){
-    multiplication_proxy<T> result;
-    result.operator*(m);
-    result.operator*(m2);
-    return result;
+    if constexpr (m.is_ct() && m2.is_ct()) {
+        multiplication_proxy<T, m.get_ct_width()> result(m);
+        result.operator*(m2);
+        return result;
+    }else {
+        multiplication_proxy<T> result;
+        result.operator*(m);
+        result.operator*(m2);
+        return result;
+    }
 }
 
 template<class T>

@@ -10,6 +10,9 @@
 #include "printer.h"
 
 int main() {
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+    std::cout << "|         PRODUCT DEMO      |" << std::endl;
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
 
     matrix<int,2,3> A;
     for (int i=0; i!=2; ++i)
@@ -26,14 +29,21 @@ int main() {
         for(int j=0; j!=2; ++j)
             D(i,j) = i+j;
 
-    //matrix_wrap<int> F(D);
-    matrix_wrap <int>  B = A * C.transpose() * D.transpose();
+    matrix <int>  B = A * C.transpose() * D.transpose();
 
+    pprint(B);
 
-    //pprint(A);
-    //pprint(C);
-    //pprint(D);
-    pprint_wrap(B,B.get_height(),B.get_width());
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+    std::cout << "|  SIZE AT COMPILE TIME     |" << std::endl;
+    std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
+
+    matrix<int,3,2> Z;
+    for (int i=0; i!=3; ++i)
+        for(int j=0; j!=2; ++j)
+            Z(i,j) = i*3+j;
+
+    matrix<int> G = A*Z;
+    pprint (G);
 
     return 0;
 

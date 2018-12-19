@@ -36,7 +36,7 @@ int main() {
     pprint(F);
 
     std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
-    std::cout << "|  COMPILE-TIME SUM DEMO    |" << std::endl;
+    std::cout << "|  SIZE AT COMPILE TIME     |" << std::endl;
     std::cout << "~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~" << std::endl;
 
     matrix<int,5,5> Z;
