@@ -50,6 +50,10 @@ Multiply some matrixes (with compile-time size):
 matrix<int,2,2> res = A*Z*A*Z;
 ```
 
+Sum and multiply matrices:
+``` c++
+matrix <int>  B = G + A.window({1,3,2,5}) * C.transpose() * D.transpose() * F + D.transpose().window({0,2,0,4})
+```
 
 ## DESIGN
 
@@ -61,10 +65,11 @@ We have defined a new generic template for the `matrix` class so as to be able t
 
 The `matrix_wrap<E>` required no changes since the type knowledge on the wrapped matrix is restricted to the templated class `matrix_ref<E,type>` and so the wrapper is oblivious to the new features.
 
+
 ### Operators 
 
-All operators have been defined externally from the classes. We have provided an overload for each possible combination of type of matrix (matrix<E, ...>, matrix_ref<E,type>, matrix_wrap<E>). If an expression contains either only sums or multiplications between compile-time size matrices, then the type of the returned matrix will also be determined at compile-time. If the expression contains a mix of sums and multiplications then our operators are unable to determine the size at compile-time even if all the matrices sizes are known at compile-time.
+All operators have been defined externally from the classes. We have provided an overload for each possible combination of type of matrix (`matrix<E, ...>`, `matrix_ref<E,type>`, `matrix_wrap<E>`). If an expression contains either only sums or multiplications between compile-time size matrices, then the type of the returned matrix will also be determined at compile-time. If the expression contains a mix of sums and multiplications then our operators are unable to determine the size at compile-time even if all the matrices sizes are known at compile-time.
 
-The operator* allows the client to multiply two matrices having the same type. A sequence of multiplication produces a multiplication_proxy<E> object which stores all the matrices converting them into a matrix_wrap<E> and the quasi-optimal multiplication order is decided at runtime using the largest-dimension compression heuristic. Similarly to the matrix class, multiplication_proxy comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. matrix<E,H,W>.
+The `operator*` allows the client to multiply two matrices having the same type. A sequence of multiplication produces a `multiplication_proxy<E>` object which stores all the matrices converting them into a `matrix_wrap<E>` and the quasi-optimal multiplication order is decided at runtime using the largest-dimension compression heuristic. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
 
-The sum can be performed using the operator+ between any two matrices of type T and U, as long as the operator+ is defined between two expressions having those two types, and returns a new matrix having as element type the type that one would get by summing two expressions of type T and U.
+The sum can be performed using the `operator+` between any two matrices of type `T` and `U`, as long as the `operator+` is defined between two expressions having those two types, and returns a new matrix having as element type the type that one would get by summing two expressions of type `T` and `U`.
