@@ -67,25 +67,25 @@ matrix<decltype(T()+U())> operator+ (const matrix_wrap<T>& m, const matrix_ref<U
 }
 
 template<class T,class U, class dec>
-matrix<decltype(T()+U())> operator+ (const multiplication_proxy<T>& m, const matrix_ref<U,dec>& m2){
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T>& m, const matrix_ref<U,dec>& m2){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, class dec>
-matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2, const multiplication_proxy<T>& m){
+matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2,  multiplication_proxy<T>& m){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U>
-matrix<decltype(T()+U())> operator+ (const multiplication_proxy<T>& m, const matrix_wrap<U>& m2){
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T>& m, const matrix_wrap<U>& m2){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U>
-matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2, const multiplication_proxy<T>& m){
+matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2,  multiplication_proxy<T>& m){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
