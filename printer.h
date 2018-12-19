@@ -11,10 +11,11 @@
 
 template<typename T>
 void pprint(const T& matrix){
-    int i = 0;
-    for (auto iter = matrix.begin(); iter != matrix.end(); ++iter) {
-        std::cout << *iter << " ";
-        if (++i % matrix.get_width() == 0) std::cout << std::endl;
+    for (int i = 0; i < matrix.get_height(); ++i) {
+        for (int j = 0; j < matrix.get_width(); ++j) {
+            std::cout << matrix(i,j) << " ";
+        }
+        std::cout << std::endl;
     }
     std::cout << std::endl;
 }
