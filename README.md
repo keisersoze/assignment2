@@ -27,7 +27,6 @@ Below are presented all the operation offered by `matrix <E>` and `shared_matrix
 ### Examples
 
 *TODO*
-```
 
 ## DESIGN
 
