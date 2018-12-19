@@ -66,31 +66,55 @@ matrix<decltype(T()+U())> operator+ (const matrix_wrap<T>& m, const matrix_ref<U
 }
 
 template<class T,class U, class dec, unsigned  FH>
-matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH> &m, const matrix_ref<U,dec>& m2){
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH> m, const matrix_ref<U,dec>& m2){
+    matrix<T> multiplication_result = m;
+    return operator+(m2,multiplication_result);
+}
+
+template<class T,class U, class dec, unsigned  FH, unsigned W>
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH,W> m, const matrix_ref<U,dec>& m2){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, class dec, unsigned FH>
-matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2,  multiplication_proxy<T,FH> &m){
+matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2,  multiplication_proxy<T,FH> m){
+    matrix<T> multiplication_result = m;
+    return operator+(m2,multiplication_result);
+}
+
+template<class T,class U, class dec, unsigned FH, unsigned W>
+matrix<decltype(T()+U())> operator+ (const matrix_ref<U,dec>& m2,  multiplication_proxy<T,FH,W> m){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, unsigned FH>
-matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH> &m, const matrix_wrap<U>& m2){
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH> m, const matrix_wrap<U>& m2){
+    matrix<T> multiplication_result = m;
+    return operator+(m2,multiplication_result);
+}
+
+template<class T,class U, unsigned FH, unsigned W>
+matrix<decltype(T()+U())> operator+ ( multiplication_proxy<T,FH,W> m, const matrix_wrap<U>& m2){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, unsigned FH>
-matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2,  multiplication_proxy<T,FH> &m){
+matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2,  multiplication_proxy<T,FH> m){
+    matrix<T> multiplication_result = m;
+    return operator+(m2,multiplication_result);
+}
+
+template<class T,class U, unsigned FH, unsigned W>
+matrix<decltype(T()+U())> operator+ (const matrix_wrap<U>& m2,  multiplication_proxy<T,FH> m){
     matrix<T> multiplication_result = m;
     return operator+(m2,multiplication_result);
 }
 
 template<class T,class U, unsigned FH>
-matrix<decltype(T()+U())> operator+ (multiplication_proxy<T,FH> &m2,  multiplication_proxy<T,FH> &m){
+matrix<decltype(T()+U())> operator+ (multiplication_proxy<T,FH> m2,  multiplication_proxy<T,FH> m){
     matrix<T> multiplication_result_1 = m;
     matrix<T> multiplication_result_2 = m2;
     return operator+(multiplication_result_1,multiplication_result_2);

@@ -40,7 +40,7 @@ The `matrix_wrap<E>` required no changes since the type knowledge on the wrapped
 
 ### Operators 
 
-All operators have been defined externally from the classes. We have provided an overload for each possible combination of type of matrix (`matrix<E, ...>`, `matrix_ref<E,type>`, `matrix_wrap<E>`). 
+All operators have been defined externally from the matrices classes. We have provided an overload for each possible combination of type of matrix (`matrix<E, ...>`, `matrix_ref<E,type>`, `matrix_wrap<E>`). 
 
 The `operator*` allows the client to multiply two matrices having the same type. A sequence of multiplication produces a `multiplication_proxy<E>` object which stores all the matrices converting them into a `matrix_wrap<E>` and the quasi-optimal multiplication order is decided at runtime using the largest-dimension compression heuristic. 
 

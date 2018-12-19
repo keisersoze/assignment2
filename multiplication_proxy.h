@@ -79,6 +79,7 @@ protected:
 public:
     multiplication_proxy<T,FH>()= default;
     multiplication_proxy<T,FH>(multiplication_proxy<T,FH> &&m):vector(std::move(m.vector)){}
+    multiplication_proxy<T,FH>(const multiplication_proxy<T,FH> &m):vector(m.vector){}
 
     template < class dec>
     void add (const matrix_ref<T,dec>& m){
@@ -135,6 +136,7 @@ private:
 public:
     multiplication_proxy<T,FH,W>()= default;
     multiplication_proxy<T,FH,W>(multiplication_proxy<T,FH> &&m):multiplication_proxy<T,FH>(std::move(m)){}
+    multiplication_proxy<T,FH,W>(const multiplication_proxy<T,FH> &m):multiplication_proxy<T,FH>(m){}
 
     template<class dec>
     auto operator*(const matrix_ref<T, dec> &m) {
