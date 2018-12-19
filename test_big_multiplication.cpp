@@ -32,10 +32,10 @@ int main() {
         for(int j=0; j!=4; ++j)
             F(i,j) = i+j+5;
 
-    matrix_wrap <int> G = D.transpose().window({0,2,0,4});
-    matrix_wrap <int>  B = G + A.window({1,3,2,5}) * C.transpose() * D.transpose() * F + D.transpose().window({0,2,0,4});
+    matrix <int> G = D.transpose().window({0,2,0,4});
+    matrix <int>  B = G + A.window({1,3,2,5}) * C.transpose() * D.transpose() * F + D.transpose().window({0,2,0,4});
 
-    pprint_wrap(B,B.get_height(),B.get_width());
+    pprint(B);
 
     return 0;
 
