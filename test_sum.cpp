@@ -28,7 +28,7 @@ int main() {
     pprint(C);
 
     auto D = A + C;
-    auto E = A + C.transpose();
+    matrix<float> E = A + C.transpose();
     auto F = C.transpose() + A;
 
     pprint(D);
@@ -47,7 +47,7 @@ int main() {
         }
     }
 
-    auto Q = Z.transpose()+Z.transpose();
+    matrix<int,5,5> Q = Z.transpose()+Z.transpose();
     pprint (Q);
     std::cout<<Q.is_ct()<<std::endl;
     std::cout<< Q.get_ct_height() << Q.get_ct_width();
