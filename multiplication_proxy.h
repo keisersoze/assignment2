@@ -16,6 +16,7 @@
 /*
  * multiply two matrices_wrap of templated type R and U
  */
+
 template< class R, class U>
 matrix_wrap<decltype(R()*U())> do_multiplication(const matrix_wrap<R>& m1,const matrix_wrap<U>& m2){
     matrix<decltype(R()*U())> result(m1.get_height(),m2.get_width());
@@ -97,7 +98,7 @@ public:
     }
 };
 
-//Product
+//OVERLOADS FOR THE MULTIPLICATION
 
 template<class T, class dec, class dec2>
 multiplication_proxy<T> operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){

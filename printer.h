@@ -10,7 +10,7 @@
 #include "matrix_wrap.h"
 
 template<typename T>
-void pprint(T matrix){
+void pprint(const T& matrix){
     int i = 0;
     for (auto iter = matrix.begin(); iter != matrix.end(); ++iter) {
         std::cout << *iter << " ";

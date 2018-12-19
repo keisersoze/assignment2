@@ -7,9 +7,8 @@
 
 #include "multiplication_proxy.h"
 
-//OVERLOADS FUNCTIONS
+//OVERLOADS FOR THE SUM
 
-//Sum
 template<class T,class U, class dec, class dec2>
 auto operator+ (const matrix_ref<T,dec>& m, const matrix_ref<U,dec2>& m2){
     if constexpr (m.is_ct() && m2.is_ct()) {

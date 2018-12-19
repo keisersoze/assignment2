@@ -6,6 +6,7 @@
 #include "matrix.h"
 #include "multiplication_proxy.h"
 #include "printer.h"
+#include "sum.h"
 
 int main() {
 
@@ -48,6 +49,7 @@ int main() {
 
     auto Q = Z.transpose()+Z.transpose();
     pprint (Q);
+    std::cout<<Q.is_ct()<<std::endl;
     std::cout<< Q.get_ct_height() << Q.get_ct_width();
 
 }
