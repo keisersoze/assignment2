@@ -35,10 +35,28 @@ matrix<decltype(R()*U())> do_multiplication(const matrix_wrap<R>& m1,const matri
     return result;
 }
 
+template< class R, unsigned H, unsigned W>
+matrix<R,H,W> do_multiplication_ct_dim(const matrix_wrap<R>& m1,const matrix_wrap<R>& m2){
+    matrix<R,H,W> result;
+    if (m1.get_width() != m2.get_height())
+        throw "!!!";
+    for (int k = 0; k < m1.get_height() ; ++k) {
+        R buff(0);
+        for (int i = 0; i < m2.get_width() ; ++i) {
+            for (int j = 0; j < m1.get_width(); ++j) {
+                buff += m1(k,j) * m2 (j,i);
+            }
+            result(k,i)=buff;
+            buff=0;
+        }
+    }
+    return result;
+}
+
 template<typename T, unsigned...dims> class multiplication_proxy;
 
-template <typename T>
-class multiplication_proxy <T> {
+template <typename T, unsigned FH>
+class multiplication_proxy <T,FH> {
 protected:
     std::vector<matrix_wrap<T>> vector;
 
@@ -59,8 +77,8 @@ protected:
         return opt_idx;
     }
 public:
-    multiplication_proxy<T>()= default;
-    multiplication_proxy<T>(multiplication_proxy<T> &&m):vector(std::move(m.vector)){}
+    multiplication_proxy<T,FH>()= default;
+    multiplication_proxy<T,FH>(multiplication_proxy<T,FH> &&m):vector(std::move(m.vector)){}
 
     template < class dec>
     void add (const matrix_ref<T,dec>& m){
@@ -72,14 +90,14 @@ public:
     }
 
     template<class dec>
-    multiplication_proxy<T> &operator*(const matrix_ref<T, dec> &m) {
+    multiplication_proxy<T,FH> &operator*(const matrix_ref<T, dec> &m) {
         if (vector.back().get_width() != m.get_height())
             throw "Size mismatch";
         vector.push_back(matrix_wrap<int>(m));
         return *this;
     }
 
-    multiplication_proxy<T> &operator*(const matrix_wrap<T> &m) {
+    multiplication_proxy<T,FH> &operator*(const matrix_wrap<T> &m) {
         if (vector.back().get_width() != m.get_height())
             throw "Size mismatch";
         vector.push_back(m);
@@ -109,19 +127,20 @@ public:
     }
 };
 
-template <typename T, unsigned W>
-class multiplication_proxy <T, W> : public multiplication_proxy<T>{
+template <typename T, unsigned FH, unsigned W>
+class multiplication_proxy <T, FH, W> : public multiplication_proxy<T,FH>{
 private:
-    using multiplication_proxy<T>::vector;
+    using multiplication_proxy<T,FH>::vector;
+    using multiplication_proxy<T,FH>::find_optimal_multiplication;
 public:
-    multiplication_proxy<T,W>()= default;
-    multiplication_proxy<T,W>(multiplication_proxy<T> &&m):multiplication_proxy<T>(std::move(m)){}
+    multiplication_proxy<T,FH,W>()= default;
+    multiplication_proxy<T,FH,W>(multiplication_proxy<T,FH> &&m):multiplication_proxy<T,FH>(std::move(m)){}
 
     template<class dec>
     auto operator*(const matrix_ref<T, dec> &m) {
         if constexpr (m.is_ct()) {
             static_assert(m.get_ct_height() == W);
-            multiplication_proxy<T, m.get_ct_width()> result(std::move(*this));
+            multiplication_proxy<T,FH,m.get_ct_width()> result(std::move(*this));
             result.add(m);
             return result;
         }else{
@@ -131,6 +150,31 @@ public:
             return *this;
         }
     }
+
+    operator matrix<T, FH, W>(){
+        static_assert(FH>0 && W>0);
+        //BEGIN DEBUG
+        for (auto i=vector.begin(); i<vector.end(); ++i)
+            pprint_wrap(*i,(*i).get_height(),(*i).get_width());
+        std::cout<< "----------------\n";
+        //END DEBUG
+
+        while(vector.size() > 2) {
+            unsigned opt = find_optimal_multiplication();
+            matrix<T> result = do_multiplication(vector[opt], vector[opt + 1]);
+            vector.erase(vector.begin() + opt);
+            vector[opt]= result;
+
+            //BEGIN DEBUG
+            for (auto i=vector.begin(); i<vector.end(); ++i)
+                pprint_wrap(*i,(*i).get_height(),(*i).get_width());
+            std::cout<< "----------------\n";
+            //END DEBUG
+        }
+        return do_multiplication_ct_dim<T,FH,W>(vector[0],vector[1]);
+
+    }
+
 };
 
 //OVERLOADS FOR THE MULTIPLICATION
@@ -139,50 +183,64 @@ template<class T, class dec, class dec2>
 auto operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){
     if constexpr (m.is_ct() && m2.is_ct()) {
         static_assert(m.get_ct_width()==m2.get_ct_height());
-        multiplication_proxy<T, m2.get_ct_width()> result;
+        multiplication_proxy<T, m.get_ct_height(), m2.get_ct_width()> result;
         result.add(m);
         result.add(m2);
         return result;
     }else{
         if (m.get_width()!=m2.get_height())
             throw "Size mismatch";
-        multiplication_proxy<T> result;
+        if constexpr (m.is_ct()) {
+            multiplication_proxy<T, m.get_ct_height()> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }else{
+            multiplication_proxy<T,0> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }
+    }
+}
+
+template<class T,unsigned FH>
+multiplication_proxy<T,FH> operator* (const matrix_wrap<T>& m, const matrix_wrap<T>& m2){
+    if (m.get_width()!=m2.get_height())
+        throw "Size mismatch";
+    else{
+        multiplication_proxy<T,0> result;
         result.add(m);
         result.add(m2);
         return result;
     }
 }
 
-template<class T>
-multiplication_proxy<T> operator* (const matrix_wrap<T>& m, const matrix_wrap<T>& m2){
+template<class T, class dec, unsigned FH>
+multiplication_proxy<T,FH> operator* (const matrix_ref<T,dec>& m, const matrix_wrap<T>& m2){
     if (m.get_width()!=m2.get_height())
         throw "Size mismatch";
     else{
-        multiplication_proxy<T> result;
-        result.add(m);
-        result.add(m2);
-        return result;
+        if constexpr (m.is_ct()) {
+            multiplication_proxy<T, m.get_ct_height()> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }else{
+            multiplication_proxy<T,0> result;
+            result.add(m);
+            result.add(m2);
+            return result;
+        }
     }
 }
 
-template<class T, class dec>
-multiplication_proxy<T> operator* (const matrix_ref<T,dec>& m, const matrix_wrap<T>& m2){
+template<class T, class dec, unsigned FH>
+multiplication_proxy<T,FH> operator* ( const matrix_wrap<T>& m, const matrix_ref<T,dec>& m2){
     if (m.get_width()!=m2.get_height())
         throw "Size mismatch";
     else{
-        multiplication_proxy<T> result;
-        result.add(m);
-        result.add(m2);
-        return result;
-    }
-}
-
-template<class T, class dec>
-multiplication_proxy<T> operator* ( const matrix_wrap<T>& m, const matrix_ref<T,dec>& m2){
-    if (m.get_width()!=m2.get_height())
-        throw "Size mismatch";
-    else{
-        multiplication_proxy<T> result;
+        multiplication_proxy<T,0> result;
         result.add(m);
         result.add(m2);
         return result;

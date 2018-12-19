@@ -42,8 +42,12 @@ int main() {
         for(int j=0; j!=2; ++j)
             Z(i,j) = i*3+j;
 
-    matrix<int> G = A*Z*A*Z;
-    pprint (G);
+        /*
+    matrix<int> G = A*Z;
+    pprint (G);*/
+
+    matrix<int,2,2> Yeah = A*Z*A*Z;
+    pprint(Yeah);
 
     return 0;
 
