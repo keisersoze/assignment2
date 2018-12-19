@@ -8,6 +8,7 @@
 #include "matrix_wrap.h"
 #include "multiplication_proxy.h"
 #include "printer.h"
+#include "sum.h"
 
 int main() {
 
