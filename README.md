@@ -75,7 +75,7 @@ static constexpr unsigned get_ct_height(): //only available if is_ct()=true
 static constexpr unsigned get_ct_width(): //only available if is_ct()=true
 ```
 
-Since no static variant to `window_spec` is provided, the static information on the dimensions is lost when the method `window(window_spec w)` is invoked and the values of `h` and `w` are set to zero. Using this information, we can check at compile-time wether the new static getters shall perform a bound check or delegate the access to the `operator()`.
+Since no static variant to `window_spec` is provided, the static information on the dimensions is lost when the method `window(window_spec w)` is invoked .Using this information, we can check at compile-time wether the new static getters shall perform a bound check or delegate the access to the `operator()`.
 
 The `matrix_wrap<E>` required no changes since the type knowledge on the wrapped matrix is restricted to the templated class `matrix_ref<E,type>` and so the wrapper is oblivious to the new features.
 
@@ -90,4 +90,4 @@ The sum can be performed using the `operator+` between any two matrices of type 
 
 ### Multiplication proxy
 
-The role of the `multiplication_proxy` is to store the sequence of matrices in a chain of multiplications and suspend the evaluation of the expression until no more matrices are available. Its responsibility is to enforce the sub-optimal largest dimension compression heuristic, and this process happens at runtime. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
+The role of the `multiplication_proxy` is to store the sequence of matrices in a chain of multiplications and suspend the evaluation of the expression until no more matrices are available. Its responsibility is to enforce the sub-optimal largest-dimension compression heuristic, and this process happens at runtime. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
