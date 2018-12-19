@@ -23,13 +23,6 @@ class matrix_ref<T, Plain>{
 	
 	typedef index_col_iterator<T,Plain> col_iterator;
 	typedef const_index_col_iterator<T,Plain> const_col_iterator;
-
-	//dummy static dimensions, used by the static matrix variant to check dimension
-	//at compile time using the "foreign matrix" constructor (0 dimension is not 
-	//allowed by the static matrix, if foreign matrix is not static then the 
-	//dimension consistency is checked at run time)
-	static constexpr unsigned h = 0;
-	static constexpr unsigned w = 0;
 	
 	T& operator ()( unsigned row, unsigned column ) {
 		return data->operator[](row*width + column);
@@ -86,10 +79,9 @@ class matrix_ref<T, Plain>{
 	unsigned get_width() const { return width; }
 
 	//methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return false;}
-    constexpr unsigned get_ct_height() const{ return 0;}
-    constexpr unsigned get_ct_width() const{ return 0;}
-	
+    static constexpr bool is_ct() { return false;}
+    static constexpr unsigned get_ct_height() { return 0;}
+    static constexpr unsigned get_ct_width() { return 0;}
 	
 	protected:
 	matrix_ref(){}
@@ -114,27 +106,23 @@ class matrix_ref<T, CT_dims<H,W>> {
 	
 	typedef index_col_iterator<T,CT_dims<H,W>> col_iterator;
 	typedef const_index_col_iterator<T,CT_dims<H,W>> const_col_iterator;
-
-	//static dimensions
-	static constexpr unsigned h = H;
-	static constexpr unsigned w = W;
 	
 	T& operator ()( unsigned row, unsigned column ) {
-		return data->operator[](row*width + column);
+		return data->operator[](row*get_ct_width() + column);
 	}
 	const T& operator ()( unsigned row, unsigned column ) const { 
-		return data->operator[](row*width + column);
+		return data->operator[](row*get_ct_width() + column);
 	}
 
 	template<unsigned i, unsigned j>
 	T& get() {
-		static_assert( i >= 0 && i < h && j >= 0 && j < w, "index out of bound" );
+		static_assert( i >= 0 && i < get_ct_height() && j >= 0 && j < get_ct_width(), "index out of bound" );
 		return operator()(i, j);
 	}
 
 	template<unsigned i, unsigned j>
 	const T& get() const {
-		static_assert( i >= 0 && i < h && j >= 0 && j < w, "index out of bound" );
+		static_assert( i >= 0 && i < get_ct_height() && j >= 0 && j < get_ct_width(), "index out of bound" );
 		return operator()(i, j);
 	}
 	
@@ -143,10 +131,10 @@ class matrix_ref<T, CT_dims<H,W>> {
 	const_iterator begin() const { return data->begin(); }
 	const_iterator end() const { return data->end(); }
 	
-	row_iterator row_begin(unsigned i) { return data->begin() + i*width; }
-	row_iterator row_end(unsigned i) { return data->begin() + (i+1)*width; }
-	const_row_iterator row_begin(unsigned i) const { return data->begin() + i*width; }
-	const_row_iterator row_end(unsigned i) const { return data->begin() + (i+1)*width; }
+	row_iterator row_begin(unsigned i) { return data->begin() + i*get_ct_width(); }
+	row_iterator row_end(unsigned i) { return data->begin() + (i+1)*get_ct_width(); }
+	const_row_iterator row_begin(unsigned i) const { return data->begin() + i*get_ct_width(); }
+	const_row_iterator row_end(unsigned i) const { return data->begin() + (i+1)*get_ct_width(); }
 	
 	col_iterator col_begin(unsigned i) { return col_iterator(*this,0,i); }
 	col_iterator col_end(unsigned i) { return col_iterator(*this,0,i+1); }
@@ -170,19 +158,18 @@ class matrix_ref<T, CT_dims<H,W>> {
 		return matrix_ref<T, Diagonal_matrix<CT_dims<H,W>>>(*this);
 	}
 	
-	unsigned get_height() const { return height; }
-	unsigned get_width() const { return width; }
+	unsigned get_height() const { return get_ct_height(); }
+	unsigned get_width() const { return get_ct_width(); }
 
     //methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return true;}
-    constexpr unsigned get_ct_height() const{ return H;}
-    constexpr unsigned get_ct_width() const{ return W;}
+    static constexpr bool is_ct() { return true;}
+    static constexpr unsigned get_ct_height() { return H;}
+    static constexpr unsigned get_ct_width() { return W;}
 	
 	protected:
 	matrix_ref(){}
 		
 	std::shared_ptr<std::vector<T>> data;
-	unsigned height, width;
 
 };
 
@@ -202,9 +189,6 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	typedef typename base::const_row_iterator const_col_iterator;
 	typedef typename base::col_iterator row_iterator;
 	typedef typename base::const_col_iterator const_row_iterator;
-
-	static constexpr unsigned h = base::w;
-	static constexpr unsigned w = base::h;
 	
 	
 	T& operator ()( unsigned row, unsigned column ) 
@@ -215,13 +199,13 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	// no need to check both heigh and width to be nonzero, they are either both 0 or >0
 	template<unsigned i, unsigned j>
 	T& get() {
-		static_assert( h != 0 && i < h && j < w, "index out of bound" );
+		static_assert( get_ct_height() != 0 && i < get_ct_height() && j < get_ct_width(), "index out of bound" );
 		return base::template get<j,i>();
 	}
 
 	template<unsigned i, unsigned j>
 	const T& get() const {
-		static_assert( h != 0 && i < h && j < w, "index out of bound" );
+		static_assert( get_ct_height() != 0 && i < get_ct_height() && j < get_ct_width(), "index out of bound" );
 		return base::template get<j,i>();
 	}
 	
@@ -250,9 +234,9 @@ class matrix_ref<T, Transpose<decorated>> : private matrix_ref<T, decorated> {
 	unsigned get_width() const { return base::get_height(); }
 
     //methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return base::is_ct();}
-    constexpr unsigned get_ct_height() const{ return base::get_ct_width();}
-    constexpr unsigned get_ct_width() const{ return base::get_ct_height();}
+    static constexpr bool is_ct() { return base::is_ct();}
+    static constexpr unsigned get_ct_height() { return base::get_ct_width();}
+    static constexpr unsigned get_ct_width() { return base::get_ct_height();}
 		
 	private:
 	matrix_ref(const base&X) : base(X) {}
@@ -276,10 +260,6 @@ class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
 	typedef const_index_row_iterator<T,Window<decorated>> const_row_iterator;
 	typedef index_col_iterator<T,Window<decorated>> col_iterator;
 	typedef const_index_col_iterator<T,Window<decorated>> const_col_iterator;
-	
-	//no static window allowed, decorated matrix size known only at runtime
-	static constexpr unsigned h = 0;
-	static constexpr unsigned w = 0;
 	
 	T& operator ()( unsigned row, unsigned column ) 
 	{ return base::operator()(row+spec.row_start, column+spec.col_start); }
@@ -338,9 +318,10 @@ class matrix_ref<T, Window<decorated>> : private matrix_ref<T, decorated> {
 	unsigned get_width() const { return spec.col_end-spec.col_start; }
 
     //methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return false;}
-    constexpr unsigned get_ct_height() const{ return 0;}
-    constexpr unsigned get_ct_width() const{ return 0;}
+    //no static window allowed, decorated matrix size known only at runtime
+    static constexpr bool is_ct() { return false;}
+    static constexpr unsigned get_ct_height() { return 0;}
+    static constexpr unsigned get_ct_width() { return 0;}
 	
 		
 	private:
@@ -370,9 +351,6 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 	typedef index_col_iterator<T,Diagonal<decorated>> col_iterator;
 	typedef const_index_col_iterator<T,Diagonal<decorated>> const_col_iterator;
 	
-	static constexpr unsigned h = base::h;
-	static constexpr unsigned w = (base::w == 0) ? 0 : 1; // >0 if CT_dims is base class
-	
 	T& operator ()( unsigned row, unsigned column=0 ) 
 	{
 		assert(column==0);
@@ -386,13 +364,13 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 
 	template<unsigned i, unsigned j=0>
 	T& get() {
-		static_assert( h != 0 && i >= 0 && i < h && j == 0, "index out of bound" );
+		static_assert( get_ct_height() != 0 && i >= 0 && i < get_ct_height() && j == 0, "index out of bound" );
 		return base::template get<i,j>();
 	}
 	
 	template<unsigned i, unsigned j=0>
 	const T& get() const {
-		static_assert( h != 0 && i >= 0 && i < h && j == 0, "index out of bound" );
+		static_assert( get_ct_height() != 0 && i >= 0 && i < get_ct_height() && j == 0, "index out of bound" );
 		return base::template get<i,j>();
 	}
 	
@@ -435,12 +413,12 @@ class matrix_ref<T, Diagonal<decorated>> : private matrix_ref<T, decorated> {
 	unsigned get_width() const { return 1; }
 
     //methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return base::is_ct();}
-    constexpr unsigned get_ct_height() const{
+    static constexpr bool is_ct() { return base::is_ct();}
+    static constexpr unsigned get_ct_height(){
         return base::get_ct_height();
 	}
-    constexpr unsigned get_ct_width() const{
-	    if constexpr (is_ct())
+    static constexpr unsigned get_ct_width(){
+	    if (is_ct())
 	        return 1;
 	    else
 	        return 0;
@@ -468,9 +446,6 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	typedef const_index_row_iterator<T,Diagonal_matrix<decorated>> const_row_iterator;
 	//typedef index_col_iterator<T,Diagonal_matrix<decorated>> col_iterator;
 	typedef const_index_col_iterator<T,Diagonal_matrix<decorated>> const_col_iterator;
-
-	static constexpr unsigned h = base::h;
-	static constexpr unsigned w = base::h;
 	
 	//Diagonal_matrix is always const!
 	/*
@@ -498,7 +473,7 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 
 	template<unsigned i, unsigned j>
 	const T& get() const {
-		static_assert( h != 0 && i >= 0 && i < h && j >= 0 && j < w, "index out of bound" );
+		static_assert( get_ct_height() != 0 && i >= 0 && i < get_ct_height() && j >= 0 && j < get_ct_width(), "index out of bound" );
 		if ( i != j ) return zero;
 		else return base::template get<i,0>();
 	}
@@ -542,9 +517,9 @@ class matrix_ref<T, Diagonal_matrix<decorated>> : private matrix_ref<T, decorate
 	unsigned get_width() const { return base::get_height(); }
 
     //methods to access dimension of the matrix at compile time
-    constexpr bool is_ct() const{ return base::is_ct();}
-    constexpr unsigned get_ct_height() const{ return base::get_ct_height(); }
-    constexpr unsigned get_ct_width() const{ return base::get_ct_height(); }
+    static constexpr bool is_ct() { return base::is_ct();}
+    static constexpr unsigned get_ct_height() { return base::get_ct_height(); }
+    static constexpr unsigned get_ct_width() { return base::get_ct_height(); }
 
 	private:
 	matrix_ref(const base&X) : base(X), zero(0) { assert(base::get_width()==1); }
@@ -591,6 +566,9 @@ class matrix<T> : public matrix_ref<T,Plain> {
 		}
 	}
 
+    using matrix_ref<T,Plain>::is_ct;
+    using matrix_ref<T,Plain>::get_ct_width;
+    using matrix_ref<T,Plain>::get_ct_height;
 
 	private:
 	using matrix_ref<T,Plain>::height;
@@ -606,31 +584,25 @@ class matrix<T,H,W> : public matrix_ref<T,CT_dims<H,W>> {
 	static_assert( H > 0 && W > 0, "matrix cannot have 0 or negative dimension" );
 
 	matrix( void ) {
-		this->height = H;
-		this->width = W;
-		data = std::make_shared<std::vector<T>>(width*height);
+		data = std::make_shared<std::vector<T>>(get_ct_width()*get_ct_height());
 	}
 
 	matrix(const matrix<T,H,W>&X) {
-		height = X.height;
-		width = X.width;
-		data = std::make_shared<std::vector<T>>(width*height);
+		data = std::make_shared<std::vector<T>>(get_ct_width()*get_ct_height());
 		*data = *(X.data);
 	}
 
 	matrix(const matrix_ref<T,CT_dims<H,W>>&X) {
+	    /*
 		static_assert( (matrix_ref<T,CT_dims<H,W>>::h == 0 || matrix_ref<T,CT_dims<H,W>>::h == H) &&
 					   (matrix_ref<T,CT_dims<H,W>>::w == 0 || matrix_ref<T,CT_dims<H,W>>::h == H),
-					   "matrix size mismatch in static sized matrix constructor" );
-
-		height = X.get_height();
-		width = X.get_width();
-		assert( height == H && width == W );
-		data = std::make_shared<std::vector<T>>(width*height);
+					   "matrix size mismatch in static sized matrix constructor" );*/
+		assert( get_ct_height() == H && get_ct_width() == W );
+		data = std::make_shared<std::vector<T>>(get_ct_width()*get_ct_height());
 		//copy does not work as my row_iterators do not provide all the facilities of iterators
 		//std::copy(X.row_begin(0),X.row_begin(height),data->begin());
 		auto source=X.row_begin(0);
-		const auto end=X.row_begin(height);
+		const auto end=X.row_begin(get_ct_height());
 		auto dest=data->begin();
 		while (source!=end) {
 			*dest = *source;
@@ -639,14 +611,12 @@ class matrix<T,H,W> : public matrix_ref<T,CT_dims<H,W>> {
 		}
 	}
 
-	using matrix_ref<T,CT_dims<H,W>>::h; //TODO delete
-	using matrix_ref<T,CT_dims<H,W>>::w;
+	using matrix_ref<T,CT_dims<H,W>>::is_ct;
+    using matrix_ref<T,CT_dims<H,W>>::get_ct_width;
+    using matrix_ref<T,CT_dims<H,W>>::get_ct_height;
 
 	private:
-	using matrix_ref<T,CT_dims<H,W>>::height;
-	using matrix_ref<T,CT_dims<H,W>>::width;
 	using matrix_ref<T,CT_dims<H,W>>::data;
-
 };
 
 #endif //_MATRIX_H_

@@ -31,30 +31,30 @@ int main(int argc, char **argv) {
 		}
 	}
 	pprint(A, "base matrix");
-	std::cout << "const size is: " << decltype(A)::w << " x " << decltype(A)::h << std::endl;
+	std::cout << "const size is: " << decltype(A)::get_ct_height() << " x " << decltype(A)::get_ct_width() << std::endl;
 
 	auto B = A.transpose();
 	pprint(B, "transpose()");
-	std::cout << "const size is: " << decltype(B)::w << " x " << decltype(B)::h << std::endl;
+	std::cout << "const size is: " << B.get_ct_height() << " x " << decltype(B)::get_ct_width() << std::endl;
 
 	auto C = B.transpose();
 	pprint(C, "transpose()");
-	std::cout << "const size is: " << decltype(C)::w << " x " << decltype(C)::h << std::endl;
+	std::cout << "const size is: " << decltype(C)::get_ct_height() << " x " << decltype(C)::get_ct_width() << std::endl;
 
 	auto D = C.window({1, 4, 2, 5});
 	pprint(D, "window({1, 4, 2, 5})");
-	std::cout << "const size is: " << decltype(D)::w << " x " << decltype(D)::h << std::endl;
+	std::cout << "const size is: " << decltype(D)::get_ct_height() << " x " << decltype(D)::get_ct_width() << std::endl;
 	std::cout << "windowing does not allow to maintain" << std::endl;
 	std::cout << "compile-time knowledge on dimensions" << std::endl;
 
 	auto E = D.diagonal();
 	pprint(E, "diagonal()");
-	std::cout << "const size is: " << decltype(D)::w << " x " << decltype(D)::h << std::endl;
+	std::cout << "const size is: " << decltype(E)::get_ct_height() << " x " << decltype(E)::get_ct_width() << std::endl;
 	std::cout << "const size is lost!" << std::endl;
 
 	auto F = E.diagonal_matrix();
 	pprint(F, "diagonal_matrix()");
-	std::cout << "const size is: " << decltype(D)::w << " x " << decltype(D)::h << std::endl;
+	std::cout << "const size is: " << decltype(F)::get_ct_height() << " x " << decltype(F)::get_ct_width() << std::endl;
 	std::cout << "const size is lost!" << std::endl;
 
 	std::cout << std::endl;
