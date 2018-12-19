@@ -12,8 +12,7 @@
 template<class T,class U, class dec, class dec2>
 auto operator+ (const matrix_ref<T,dec>& m, const matrix_ref<U,dec2>& m2){
     if constexpr (m.is_ct() && m2.is_ct()) {
-        if constexpr (m.get_ct_height() != m2.get_ct_height() || m.get_ct_width() != m2.get_ct_width())
-            throw "Size mismatch";
+        static_assert(m.get_ct_height() == m2.get_ct_height() && m.get_ct_width() == m2.get_ct_width());
         matrix<decltype(U()+T()), m.get_ct_height(), m.get_ct_width() > result;
         for (int i = 0; i < m.get_ct_height() ; ++i) {
             for (int j = 0; j < m.get_ct_width() ; ++j) {

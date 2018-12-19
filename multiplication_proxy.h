@@ -120,8 +120,7 @@ public:
     template<class dec>
     auto operator*(const matrix_ref<T, dec> &m) {
         if constexpr (m.is_ct()) {
-            if constexpr(m.get_ct_height() != W)
-                throw "Size mismatch";
+            static_assert(m.get_ct_height() == W);
             multiplication_proxy<T, m.get_ct_width()> result(std::move(*this));
             result.add(m);
             return result;
@@ -138,24 +137,19 @@ public:
 
 template<class T, class dec, class dec2>
 auto operator* (const matrix_ref<T,dec>& m, const matrix_ref<T,dec2>& m2){
-    if constexpr (m.is_ct() && m2.is_ct())
-        if constexpr(m.get_ct_width()!=m2.get_ct_height())
-            throw "Size mismatch";
-        else{
-            multiplication_proxy<T,m2.get_ct_width()> result;
-            result.add(m);
-            result.add(m2);
-            return result;
-        }
-    else{
+    if constexpr (m.is_ct() && m2.is_ct()) {
+        static_assert(m.get_ct_width()==m2.get_ct_height());
+        multiplication_proxy<T, m2.get_ct_width()> result;
+        result.add(m);
+        result.add(m2);
+        return result;
+    }else{
         if (m.get_width()!=m2.get_height())
             throw "Size mismatch";
-        else{
-            multiplication_proxy<T> result;
-            result.add(m);
-            result.add(m2);
-            return result;
-        }
+        multiplication_proxy<T> result;
+        result.add(m);
+        result.add(m2);
+        return result;
     }
 }
 
