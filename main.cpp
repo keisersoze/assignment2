@@ -7,8 +7,8 @@
 #include "sum.h"
 
 int main() {
-	matrix<int> A(4,4);
-	matrix<int> B(4,4);
+	matrix<int,4,4> A;
+	matrix<int,4,4> B;
 
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
@@ -17,7 +17,7 @@ int main() {
 		}
 	}
 
-	matrix<int> res = A * B + B + B;
+	matrix<int,4,4> res = A + A * B.transpose() + B + B ;
 
 	pprint(res);
 	return 0;
