@@ -55,6 +55,11 @@ Sum and multiply matrices:
 matrix <int>  B = G + A.window({1,3,2,5}) * C.transpose() * D.transpose() * F + D.transpose().window({0,2,0,4})
 ```
 
+Sum and multiply matrices (with compile-time size):
+``` c++
+matrix<int,4,4> res = A + A * B.transpose() + B + B ;
+```
+
 ## DESIGN
 
 In this section we explain our design for the project.
