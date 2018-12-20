@@ -20,9 +20,9 @@ The client is now able to use a specialized version of the `matrix<E>` class whi
 
 Since the matrix specialization does not depend on a change in the template structure of `matrix_ref<T,type>` (being `type` both the placeholder for the type and the type decoration) then `matrix_wrap<E>` is oblivious to any change in the static variant, meaning that no change has been necessary and the client is free to pass a static `matrix_ref<T,type>` to any `matrix_wrap<E>` as in the previous assignment.
 
-Operators for matrix sum and multiplication are now available. Any expression containing these operators is evaluated as a `matrix_wrap<E>`. Their behaviour is described in their own Design section.
+Operators for matrix sum and multiplication are now available. Their behaviour is described in their own Design section.
 
-Below are presented all the operation offered by `matrix <E>` and `shared_matrix  <E>` classes.
+Below are presented all the operation offered by matrix classes.
 
 ### Examples
 
@@ -82,7 +82,7 @@ The `matrix_wrap<E>` required no changes since the type knowledge on the wrapped
 
 ### Operators 
 
-All operators have been defined externally from the classes. We have provided an overload for each possible combination of type of matrix (`matrix<E, ...>`, `matrix_ref<E,type>`, `matrix_wrap<E>`). If an expression contains either only sums or multiplications between compile-time size matrices, then the type of the returned matrix will also be determined at compile-time. If the expression contains a mix of sums and multiplications then our operators are unable to determine the size at compile-time even if all the matrices sizes are known at compile-time.
+All operators have been defined externally from the classes. We have provided an overload for each possible combination of type of matrix (`matrix<E, ...>`, `matrix_ref<E,type>`, `matrix_wrap<E>`). If an expression contains either only sums or multiplications between compile-time size matrices, then the type of the returned matrix will also be determined at compile-time. If the expression contains a mix of sums and multiplications then our operators are able to determine the size at compile-time if all the matrices sizes are known at compile-time.
 
 The `operator*` allows the client to multiply two matrices having the same type. A sequence of multiplication produces a `multiplication_proxy<E>` object which stores all the matrices converting them into a `matrix_wrap<E>` and the quasi-optimal multiplication order is decided at runtime using the largest-dimension compression heuristic. Similarly to the `matrix` class, `multiplication_proxy` comes in a variant for multiplications between matrices with dimensions known at compile-time, i.e. `matrix<E,H,W>`.
 
